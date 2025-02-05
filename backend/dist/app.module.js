@@ -13,6 +13,7 @@ const app_service_1 = require("./app.service");
 const typeorm_1 = require("@nestjs/typeorm");
 const posts_module_1 = require("./posts/posts.module");
 const posts_entity_1 = require("./posts/posts.entity");
+const file_module_1 = require("./file/file.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -29,7 +30,8 @@ exports.AppModule = AppModule = __decorate([
                 entities: [posts_entity_1.Post],
                 synchronize: true
             }),
-            posts_module_1.PostsModule
+            posts_module_1.PostsModule,
+            file_module_1.FileModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

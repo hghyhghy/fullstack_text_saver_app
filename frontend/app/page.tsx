@@ -14,7 +14,8 @@ export default function Home() {
   const [savedData, setSavedData] = useState<Post[] | null>(null);
   const [lastPost, setLastPost] = useState<Post | null>(null);
   const [showAll, setShowAll] = useState(false);
-  const [editingPost, setEditingPost] = useState<Post | null>(null); // Track editing post
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const saveData = async () => {
     if (editingPost) {
@@ -35,7 +36,6 @@ export default function Home() {
 
     setTitle("");
     setDescription("");
-
   };
 
   const fetchData = async (showAllPosts: boolean) => {
@@ -77,6 +77,49 @@ export default function Home() {
     setDescription(post.description);
   };
 
+  // Handle file selection
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setSelectedFile(event.target.files[0]);
+    }
+  };
+
+  // Upload file to backend
+  const uploadFile = async () => {
+    if (!selectedFile) return alert("Please select a file to upload.");
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    await fetch("http://localhost:3001/file/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    alert("File uploaded successfully!");
+  };
+
+  // Download file from backend
+  const downloadFile = async () => {
+    const fileName = prompt("Enter file name to download:");
+    if (!fileName) return;
+
+    const response = await fetch(`http://localhost:3001/file/download/${fileName}`);
+    if (!response.ok) {
+      alert("File not found.");
+      return;
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   return (
     <div className="p-4 max-w-lg mx-auto mt-20">
       <h1 className="text-xl font-bold">Simple Note App</h1>
@@ -105,55 +148,16 @@ export default function Home() {
         Show All
       </button>
 
-      {/* Display last saved post */}
-      {lastPost && (
-        <div className="mt-4 border p-2 rounded bg-yellow-100">
-          <h2 className="font-bold text-black">Last Saved Post</h2>
-          <h3 className="font-semibold text-black">{lastPost.title}</h3>
-          <p className="text-black">{lastPost.description}</p>
-          <button
-            onClick={() => deletePost(lastPost.id)}
-            className="bg-red-500 text-white p-2 rounded mt-2"
-          >
-            Delete
-          </button>
-          <button
-            onClick={() => startEditing(lastPost)}
-            className="bg-yellow-500 text-white p-2 rounded mt-2 ml-2"
-          >
-            Edit
-          </button>
-        </div>
-      )}
-
-      {/* Display all saved posts */}
-      {showAll && savedData && (
-        <div className="mt-4">
-          <h2 className="font-bold">All Saved Posts</h2>
-          {savedData.length > 0 ? (
-            savedData.map((post) => (
-              <div key={post.id} className="border p-2 my-2 rounded">
-                <h3 className="font-semibold">{post.title}</h3>
-                <p>{post.description}</p>
-                <button
-                  onClick={() => deletePost(post.id)}
-                  className="bg-red-500 text-white p-2 rounded mt-2"
-                >
-                  Delete
-                </button>
-                <button
-                  onClick={() => startEditing(post)}
-                  className="bg-yellow-500 text-white p-2 rounded mt-2 ml-2"
-                >
-                  Edit
-                </button>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No saved posts yet.</p>
-          )}
-        </div>
-      )}
+      {/* File Upload & Download */}
+      <div className="mt-4 ml-2">
+        <input type="file" onChange={handleFileChange} className="my-2" />
+        <button onClick={uploadFile} className="bg-purple-500 text-white p-2 rounded ">
+          Upload File
+        </button>
+        <button onClick={downloadFile} className="bg-orange-500 text-white p-2 rounded">
+          Download File
+        </button>
+      </div>
     </div>
   );
 }
