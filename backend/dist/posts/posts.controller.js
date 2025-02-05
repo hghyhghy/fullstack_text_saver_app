@@ -22,8 +22,23 @@ let PostsController = class PostsController {
     create(body) {
         return this.PostsService.create(body.title, body.description);
     }
-    findAll() {
-        return this.PostsService.findAll();
+    async findAll(last) {
+        if (last === 'true') {
+            return this.PostsService.getLastPosts();
+        }
+        else {
+            return this.PostsService.getAllPosts();
+        }
+    }
+    async deletefunc(id) {
+        const result = await this.PostsService.deletePost(id);
+        if (!result.affected) {
+            throw new common_1.NotFoundException(`Post with ID ${id} not found`);
+        }
+        return { message: 'Post deleted successfully' };
+    }
+    async update(id, title, description) {
+        return this.PostsService.updatepost(id, title, description);
     }
 };
 exports.PostsController = PostsController;
@@ -36,10 +51,27 @@ __decorate([
 ], PostsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)('last')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
 ], PostsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], PostsController.prototype, "deletefunc", null);
+__decorate([
+    (0, common_1.Put)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('title')),
+    __param(2, (0, common_1.Body)('description')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String, String]),
+    __metadata("design:returntype", Promise)
+], PostsController.prototype, "update", null);
 exports.PostsController = PostsController = __decorate([
     (0, common_1.Controller)('post'),
     __metadata("design:paramtypes", [posts_service_1.PostsService])

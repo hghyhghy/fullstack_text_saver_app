@@ -25,8 +25,26 @@ let PostsService = class PostsService {
         const post = this.postRepository.create({ title, description });
         return this.postRepository.save(post);
     }
-    async findAll() {
+    async getAllPosts() {
         return this.postRepository.find();
+    }
+    async getLastPosts() {
+        return this.postRepository.findOne({
+            where: {},
+            order: { createdAt: 'DESC' },
+        });
+    }
+    async deletePost(id) {
+        return this.postRepository.delete(id);
+    }
+    async updatepost(id, title, description) {
+        const post = await this.postRepository.findOne({ where: { id } });
+        if (!post) {
+            throw new Error('Post not found');
+        }
+        post.title = title;
+        post.description = description;
+        return this.postRepository.save(post);
     }
 };
 exports.PostsService = PostsService;

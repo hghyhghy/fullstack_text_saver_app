@@ -1,6 +1,6 @@
 
 
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column,CreateDateColumn } from 'typeorm';
 
 @Entity()
 export class Post {
@@ -13,5 +13,8 @@ export class Post {
 
     @Column('text')
     description:string
+
+    @CreateDateColumn({ type: 'timestamp' }) // Auto-generates timestamp on insert
+    createdAt: Date;
 
 }
